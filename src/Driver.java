@@ -1,119 +1,135 @@
+import java.io.BufferedReader;
+import java.io.File; // Import the File class
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Scanner;
 
+import Enum.DirectedGraphState;
 import utils.Utils;
 
 public class Driver {
-	
+
 	public static ArrayList<Edge<String>> connected;
 	public static Graph<String> graph;
 	public static boolean isGraphDirected;
-	public static Scanner scannerObjectReader = new Scanner(System.in);
-	
-	public static void main(String[] args) {
+	public static int numberOfVertex;
+
+	public static void main(String[] args) throws IOException {
 		Driver.startGraphCreation();
 	}
-	
-	
-	public static void startGraphCreation() {
-		askIfGraphIsDirected();
-		askForVertexNumberAndLetter();
-		askForVertex();
-		
-		System.out.println("Grafo Construido:");
-		Driver.graph.toString();
-	}
 
+	public static void startGraphCreation() throws IOException {
 
-	public static void askForVertex() {
-		System.out.println("As arestas terão peso?");
-		System.out.println("Responda com sim ou não.");
-		System.out.println("\n");
-		String doesArcHaveWeight = scannerObjectReader.nextLine();
+//		File graphFile = new File("NonWeightGraph.txt");
+//		File graphFile = new File("NonWeightGraphWithError.txt");
+		File graphFile = new File("WeightedGraph.txt");
+//		File graphFile = new File("WeightedGraphWithError.txt");
 		
-		if(doesArcHaveWeight.equals("não") || doesArcHaveWeight.equals("nao") || doesArcHaveWeight.equals("n")) {
-			createArc();
-		}else{
-			createArcWithWeight();
+		@SuppressWarnings("resource")
+		BufferedReader bufferReaderObject = new BufferedReader(new FileReader(graphFile));
+
+		String textLineContent;
+		int lineCounter = 1;
+		while ((textLineContent = bufferReaderObject.readLine()) != null) {
+			System.out.println("Line: " + lineCounter);
+			switch (lineCounter) {
+			case 1: {
+				// CHECK IF GRAPH IS DIRECTED
+				Driver.isGraphDirected = textLineContent.equals(DirectedGraphState.NON_DIRECTED.toString()) ? false : true;
+				Driver.askIfGraphIsDirected(Driver.isGraphDirected);
+				
+				break;
+			}
+			case 2: {
+				// GET NUMBER OF VERTEX
+				Driver.getNumberOfVertex(textLineContent);
+				System.out.println(textLineContent);
+				System.out.println(" ");
+
+				break;
+			}
+			default:
+				if (lineCounter <= +2 + Driver.numberOfVertex) {
+					// VERTEX CREATION
+					System.out.println(textLineContent);
+					System.out.println(" ");
+					connected.add(new Edge<String>(textLineContent, 0));
+					
+					break;
+				} else {
+					if (textLineContent.length() == 3) {
+						//NON WEIGHT ARC
+						createArc(textLineContent);
+						System.out.println(textLineContent);
+						System.out.println(" ");
+						break;
+					} else if (textLineContent.length() >= 5) {
+						// WEIGHT ARC
+						createArcWithWeight(textLineContent);
+						System.out.println(textLineContent);
+						System.out.println(" ");
+						break;
+					} else {
+						System.out.println("Erro de sintaxe ao criar grafo com conteudo do arquivo");
+						System.out.println("Erro de conteudo: "+ textLineContent);
+					}
+				}
+			}
+			lineCounter++;
 		}
-		
+		System.out.println(" ");
+		System.out.println(graph.toString());
 	}
 
-
-	public static void createArcWithWeight() {
-		System.out.println("Indique os grafos com criação da seguinte forma:");
-		System.out.println("Vertice , Vertice, Peso");
-		System.out.println("Ex: A,B,0");
-		System.out.println("\n");
-		
-		String arcCrationStringText = scannerObjectReader.nextLine();
+	public static void createArcWithWeight(String arcCreationStringText) {
 		String regexExpression = "([A-z]),([A-z]),([0-9])+";
-		
-		if(arcCrationStringText.matches(regexExpression)) {
-			String firstVertex = String.valueOf(arcCrationStringText.charAt(0));
-			String secondVertex = String.valueOf(arcCrationStringText.charAt(2));
-			int weightOfVertex =  arcCrationStringText.charAt(4);
-			graph.addArc(firstVertex, secondVertex,weightOfVertex);
+
+		if (arcCreationStringText.matches(regexExpression)) {
+			String firstVertex = String.valueOf(arcCreationStringText.charAt(0));
+			String secondVertex = String.valueOf(arcCreationStringText.charAt(2));
+			
+			int weightOfVertex = Integer.parseInt(arcCreationStringText.substring(4));
+			graph.addArc(firstVertex, secondVertex, weightOfVertex);
+		}else{
+			System.out.println("Erro de sintaxe ao criar grafo com conteudo do arquivo");
+			System.out.println("Erro de conteudo: "+ arcCreationStringText);
 		}
 	}
 
+	public static void createArc(String arcCreationStringText) {
 
-	public static void createArc() {
-		System.out.println("Indique os grafos com criação da seguinte forma:");
-		System.out.println("Vertice , Vertice");
-		System.out.println("Ex: A,B");
-		System.out.println("\n");
-		
-		String arcCrationStringText = scannerObjectReader.nextLine();
 		String regexExpression = "([A-z]),([A-z])+";
-		
-		if(arcCrationStringText.matches(regexExpression)) {
-			String firstVertex = String.valueOf(arcCrationStringText.charAt(0));
-			String secondVertex = String.valueOf(arcCrationStringText.charAt(2));
-			graph.addArc(firstVertex, secondVertex,0);
+
+		if (arcCreationStringText.matches(regexExpression)) {
+			String firstVertex = String.valueOf(arcCreationStringText.charAt(0));
+			String secondVertex = String.valueOf(arcCreationStringText.charAt(2));
+			graph.addArc(firstVertex, secondVertex, 0);
+		}else{
+			System.out.println("Erro de sintaxe ao criar grafo com conteudo do arquivo");
+			System.out.println("Erro de conteudo: "+ arcCreationStringText);
 		}
 	}
 
+	public static void getNumberOfVertex(String numberOfVertexInString) {
 
-	public static void askForVertexNumberAndLetter() {
-		System.out.println("Informe a quantidade de vertices à serem formados. \n");
-		String numberOfVertexInString = scannerObjectReader.nextLine();
-
-		if(Utils.isValidStringNumber(numberOfVertexInString)) {
-			createVertex(numberOfVertexInString);
-		}else {
+		if (!Utils.isValidStringNumber(numberOfVertexInString)) {
 			System.out.println("Número invalido, tente novamente.");
-			askForVertexNumberAndLetter();
+		} else {
+			Driver.numberOfVertex = Integer.parseInt(numberOfVertexInString);
 		}
 	}
 
+	private static void askIfGraphIsDirected(boolean graphIsDirected) {
 
-	public static void createVertex(String numberOfVertexInString) {
-		
-		int numberOfVertex = Integer.parseInt(numberOfVertexInString);
-		
-		for (int i = 0; i < numberOfVertex; i++) {
-			System.out.println("Indique a letra para representar o vértice.");
-			String letterOfVertex = scannerObjectReader.nextLine();
-			connected.add(new Edge<String>(letterOfVertex,0));
-		}
-	}
+		Driver.isGraphDirected = graphIsDirected;
 
+		String selectedGraphConfiguration = graphIsDirected ? "Grafo Direcionado" : "Grafo Não Direcionado";
+		System.out.println("Configuração Atual de Grafo:");
+		System.out.println("- " + selectedGraphConfiguration);
+		System.out.println(" ");
 
-	private static void askIfGraphIsDirected() {
-		System.out.println("Digite 0 para grafo não direcionado e 1 para grafo direcionado\n");
-		Driver.isGraphDirected = scannerObjectReader.nextLine().equals(Utils.DirectedGraphState.NON_DIRECTED.toString()) ? false : true;
-
-	    
-	    String selectedGraphConfiguration = isGraphDirected ? "Grafo Direcionado" : "Grafo Não Direcionado";
-    	System.out.println("Configuração Atual de Grafo:");
-    	System.out.println("- " + selectedGraphConfiguration);
-
-    	
-    	Driver.graph = new Graph<String>(isGraphDirected);
-    	Driver.connected = new ArrayList<Edge<String>>();
+		Driver.graph = new Graph<String>(graphIsDirected);
+		Driver.connected = new ArrayList<Edge<String>>();
 
 	}
 }
-
-	

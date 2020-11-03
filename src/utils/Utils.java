@@ -2,9 +2,6 @@ package utils;
 
 public class Utils {
 	
-	public enum DirectedGraphState  {
-	    NON_DIRECTED, DIRECTED;
-	}
 	
 	public static boolean isValidStringNumber(String numberOfVertex) {
 		
