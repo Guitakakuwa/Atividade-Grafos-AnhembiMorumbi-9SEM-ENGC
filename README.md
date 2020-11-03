@@ -3,10 +3,11 @@
 ## Autores:
 
   <ol>
-    <li>Jailson Araujo - 20871401</li>
     <li>Guilherme Takakuwa - 20913698</li>
-    <li>Alan Dias - 20970938</li>
+    <li>Levi da Costa Silva - 20755873</li>
+    <li>Paulo Felipe - 20898988</li>
     <li>Vitor Silva Cunha - 20900163</li>
+    <li>Jailson Araujo - 20871401</li>
   </ol>
 
 ## Como rodar:
