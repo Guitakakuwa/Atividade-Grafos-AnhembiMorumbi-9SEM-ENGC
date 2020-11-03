@@ -18,7 +18,6 @@
     <li>JAVA 8</li>
   </ul>
 <br/>
-<br/>
 <span>
   linha 1: indicação se o grafo é direcionado ( 1 ) ou não ( 0 )
 </span>
