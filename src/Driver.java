@@ -3,6 +3,7 @@ import java.io.File; // Import the File class
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import Enum.DirectedGraphState;
 import utils.Utils;
@@ -16,6 +17,8 @@ public class Driver {
 
 	public static void main(String[] args) throws IOException {
 		Driver.startGraphCreation();
+		
+		System.out.println(Driver.dijkstraShortestPath(Driver.graph, "A"));
 	}
 
 	public static void startGraphCreation() throws IOException {
@@ -40,6 +43,7 @@ public class Driver {
 				
 				break;
 			}
+			
 			case 2: {
 				// GET NUMBER OF VERTEX
 				Driver.getNumberOfVertex(textLineContent);
@@ -48,8 +52,9 @@ public class Driver {
 
 				break;
 			}
+			
 			default:
-				if (lineCounter <= +2 + Driver.numberOfVertex) {
+				if (lineCounter <= + 2 + Driver.numberOfVertex) {
 					// VERTEX CREATION
 					System.out.println(textLineContent);
 					System.out.println(" ");
@@ -131,5 +136,53 @@ public class Driver {
 		Driver.graph = new Graph<String>(graphIsDirected);
 		Driver.connected = new ArrayList<Edge<String>>();
 
+	}
+	
+	
+	public static <Vertex> HashMap<Vertex, Double> dijkstraShortestPath(Graph<Vertex> graph,
+			Vertex source) {
+		HashMap<Vertex, Double> distances = new HashMap<Vertex, Double>();
+		ArrayList<Vertex> queue = new ArrayList<Vertex>();
+		ArrayList<Vertex> visited = new ArrayList<Vertex>();
+		queue.add(0, source);
+		distances.put(source, 0.0);
+		while (!queue.isEmpty()) {
+
+			Vertex currentVertex = queue.remove(queue.size() - 1);
+
+			if (distances.get(currentVertex) == null) {
+				distances.put(currentVertex, Double.POSITIVE_INFINITY);
+			}
+			
+			for (Vertex adjacentVertex : graph.getAdjacentVertices(currentVertex)) {
+				if (distances.get(adjacentVertex) == null) {
+					distances.put(adjacentVertex, Double.POSITIVE_INFINITY);
+				}
+
+
+				if (distances.get(adjacentVertex) > graph
+						.getDistanceBetween(currentVertex, adjacentVertex)
+						+ distances.get(currentVertex)) {
+
+					distances.put(adjacentVertex,graph.getDistanceBetween(currentVertex,adjacentVertex)+ distances.get(currentVertex));
+				}
+				
+
+				if (!visited.contains(adjacentVertex)
+						&& !queue.contains(adjacentVertex)) {
+					queue.add(0, adjacentVertex);
+				}
+			}
+			visited.add(currentVertex);
+
+		}
+
+		for (Vertex vertex : graph.getVertexList()) {
+			if (!distances.containsKey(vertex)) {
+				distances.put(vertex, Double.POSITIVE_INFINITY);
+			}
+		}
+
+		return distances;
 	}
 }
